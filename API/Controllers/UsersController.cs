@@ -32,6 +32,7 @@ namespace API
             if (user == null) return NotFound(); // Corrigido: "NotFound()" em vez de "Not Found".
 
             return Ok(user);
+            
         }
     }
 }
