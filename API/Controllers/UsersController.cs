@@ -1,38 +1,29 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Linq;
 using API.Entities;
-using API.Data;
+using Microsoft.EntityFrameworkCore;
+using API.Data; // Adicione esta linha se a classe DataContext estiver nesse namespace
 
-namespace API
-{
-    [ApiController]
-    [Route("api/[controller]")] // API/USERS
-    public class UsersController : ControllerBase
+
+namespace API;  
+
+public class UsersController(DataContext context) : BaseAPIController
     {
-        private readonly DataContext _context;
-
-        public UsersController(DataContext context)
-        {
-            _context = context;
-        }
 
         [HttpGet]
-        public ActionResult<IEnumerable<AppUser>> GetUsers()
+        public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers()
         {
-            var users = _context.Users.ToList();
-            return Ok(users); // Envolvemos em "Ok" para retornar um status HTTP 200.
+            var users = await context.Users.ToListAsync();
+            return Ok(users); // HTTP 200.
         }
 
-        [HttpGet("{id}")]
-        public ActionResult<AppUser> GetUser(int id) // Ajustei o nome do método para GetUser.
+        [HttpGet("{id:int}")] // api/users/{id}
+        public async Task<ActionResult<AppUser>> GetUser(int id)
         {
-            var user = _context.Users.Find(id);
+            var user = await context.Users.FindAsync(id);
 
-            if (user == null) return NotFound(); // Corrigido: "NotFound()" em vez de "Not Found".
+            if (user == null) return NotFound(); // 404 se o usuário não for encontrado
 
-            return Ok(user);
-            
+            return Ok(user); // Retorna o usuário encontrado
         }
     }
-}
+
